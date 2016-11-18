@@ -5,6 +5,6 @@ Enable the new view mode for the content types
 "data_set, datasource, person, organization, research_site, site".
 
 Place the relevant fields in the Active region and
-and give them the right formatter (iso19139)
+and give them the right formatter (emf or other)
 
 pages will be accessed as node/%nid/emf
