@@ -14,7 +14,14 @@ $siteWebAddress = field_get_items('node', $node, 'field_ilter_network_url');
 $deimsURL = $GLOBALS['base_url'];
 $ilterNetworkMetadata = field_get_items('node', $node, 'field_ilter_national_network_nam');
 $otherNetworkMetadata = field_get_items('node', $node, 'field_networks_term_ref');
-$relatedDataset = field_get_items('node', $node, 'field_collected_datasets_ref');
+//$relatedDataset = field_get_items('node', $node, 'field_collected_datasets_ref');
+
+$relatedDatasetMetadata = strip_tags(views_embed_view('datasets_per_site','ds_md',$node->nid));
+$relatedDatasetMetadataArray = json_decode($relatedDatasetMetadata);
+//$datasetTitle = $relatedDatasetMetadataArray[0]->node->title;
+//$datasetLegalAct = $relatedDatasetMetadataArray[0]->node->field_dataset_legal;
+//$datasetUUID = $relatedDatasetMetadataArray[0]->node->field_uuid;
+
 
 
 /** COMMENTED 
@@ -22,14 +29,16 @@ $relatedDataset = field_get_items('node', $node, 'field_collected_datasets_ref')
 **/
 
 ?>
+
+
+
 <ef:EnvironmentalMonitoringFacility <?php print $namespaces; ?> gml:id="<?php print "Facility_" . $uuid; ?>">
 	
-	
-	    <ef:inspireId>
+	<?php //print_r($relatedDatasetMetadata); ?>
+	<ef:inspireId>
         <base:Identifier>
 			<base:localId><?php print render($content['field_uuid']); ?></base:localId>
             <base:namespace><?php print $deimsURL; ?></base:namespace>
-            
         </base:Identifier>
     </ef:inspireId>
 	
@@ -45,11 +54,62 @@ $relatedDataset = field_get_items('node', $node, 'field_collected_datasets_ref')
 			<ef:mediaMonitored xlink:href="<?php print $deimsURL . "/codeList/GeoboneBiome/" . $item[value]; ?>"/>
 		<?php endforeach; ?>
 	<?php endif; ?>
-	<?php if (!empty($content['field_collected_datasets_ref'])): echo "WTF";?>
 	
-		<?php print render($content['field_collected_datasets_ref']); ?>
+	
+	<?php if (!empty($relatedDatasetMetadata)):
+			$k = 0;
+			//$datasetLegalAct = '';
+			//$datasetUUID = '';
+			$num_datasets = 0;
+			foreach($relatedDatasetMetadataArray AS $key => $value) {
+					//print 'KEY: '.$key.'<br>';
+					if (count($value) > $num_datasets) {
+						$num_datasets = count($value);
+					}
+				}
+				//echo "NUM_ARRAYS: " . $num_arrays;
+				for($k = 0; $k < $num_datasets; $k++) {
+					foreach($relatedDatasetMetadataArray AS $value) {
+						$datasetTitle = $value->node->title;
+						$datasetLegalAct = $value->node->field_dataset_legal;
+						$datasetUUID = $value->node->field_uuid;
+						//print("LEGAL:" .$datasetLegalAct ."<br>");
+						//print("UUID:" .$datasetUUID ."<br>");
+						?>
+						<ef:legalBackground>
+							<base2:LegislationCitation gml:id="<?php print "Dataset_" . $datasetUUID ?>">
+								<base2:name>
+									<?php
+									//$legalActTextFull = $item['value'];
+									$legalActSemi = str_replace(',',';',$datasetLegalAct);
+									$legalActArray = explode(';', $legalActSemi);
+									print $legalActArray[0];
+									?>
+								</base2:name>
+								<base2:date>
+									<gmd:CI_Date>
+										<gmd:date>
+											<gco:Date><?php print $legalActArray[1];?></gco:Date>
+										</gmd:date>
+										<gmd:dateType>
+											<gmd:CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml"
+																codeListValue="<?php print $legalActArray[2];?>"
+																codeSpace="ISOTC211/19115"><?php print $legalActArray[2];?></gmd:CI_DateTypeCode>
+										</gmd:dateType>
+									</gmd:CI_Date>
+								</base2:date>
+								<base2:link/>
+								<base2:level/>
+							</base2:LegislationCitation>
+						</ef:legalBackground>
+						<?php
+					}
+				}
+				$k++;
+				
+				?>
+	
 	<?php endif; ?>
-	
 	
 	<?php if (!empty($content['field_person_contact'])):?>
 		<?php print render($content['field_person_contact']); ?>
@@ -287,9 +347,5 @@ $relatedDataset = field_get_items('node', $node, 'field_collected_datasets_ref')
 			
 		<?php endforeach; ?>
 	<?php endif; ?>
-	
-	
-	
-	
-	
+
 </ef:EnvironmentalMonitoringFacility>
