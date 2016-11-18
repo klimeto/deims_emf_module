@@ -7,4 +7,4 @@ Enable the new view mode for the content types
 Place the relevant fields in the Active region and
 and give them the right formatter (iso19139)
 
-pages will be accessed as node/%nid/iso19139
+pages will be accessed as node/%nid/emf
