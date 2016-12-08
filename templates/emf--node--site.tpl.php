@@ -15,13 +15,13 @@ $deimsURL = $GLOBALS['base_url'];
 $ilterNetworkMetadata = field_get_items('node', $node, 'field_ilter_national_network_nam');
 $otherNetworkMetadata = field_get_items('node', $node, 'field_networks_term_ref');
 //$relatedDataset = field_get_items('node', $node, 'field_collected_datasets_ref');
-
+//CONNECTING VIEW TO USE FIELDS FROM RELATED DATASETS
 $relatedDatasetMetadata = strip_tags(views_embed_view('datasets_per_site','ds_md',$node->nid));
 $relatedDatasetMetadataArray = json_decode($relatedDatasetMetadata);
 //$datasetTitle = $relatedDatasetMetadataArray[0]->node->title;
 //$datasetLegalAct = $relatedDatasetMetadataArray[0]->node->field_dataset_legal;
 //$datasetUUID = $relatedDatasetMetadataArray[0]->node->field_uuid;
-
+$hasObservation = '';
 
 
 /** COMMENTED 
@@ -73,9 +73,40 @@ $relatedDatasetMetadataArray = json_decode($relatedDatasetMetadata);
 						$datasetTitle = $value->node->title;
 						$datasetLegalAct = $value->node->field_dataset_legal;
 						$datasetUUID = $value->node->field_uuid;
-						//print("LEGAL:" .$datasetLegalAct ."<br>");
-						//print("UUID:" .$datasetUUID ."<br>");
+						$datasetURL = $value->node->field_online_locator;
+						//print $datasetURL;
+						$datasetURLArray = explode(';', $datasetURL);
+						//
+						$searchword = 'service=SOS';
+						$matches = array_filter($datasetURLArray, function($var) use ($searchword) { return preg_match("/\b$searchword\b/i", $var);});
+						//print_r($matches);
+						//print_r($datasetURLArray);
+						$arr = array();
+						//$distributionURL = explode('Distribution URL:Â  ', $datasetURLArray);
+						foreach ($matches as $key => $arrvalue){
+							if (empty($arrvalue)) {
+							   unset($matches[$key]);
+							}
+							$arr[] = array (
+								'URL' => extract_unit($arrvalue, 'Distribution URL:Â  ', 'Distribution Function'),
+								'FUNCTION' => substr($arrvalue, strpos($arrvalue, "Distribution Function:") + 24),
+							);
+								$innerarrUrl = extract_unit($arrvalue, 'Distribution URL:Â  ', 'Distribution Function');
+								$innerarrFun = substr($arrvalue, strpos($arrvalue, "Distribution Function:") + 24);
+								$arr['URL'] = $innerarrUrl;
+								//$hasObservation = strpos($innerarrUrl,'service=SOS');
+								//$searchword = 'service=SOS';
+								//$matches = array_filter($arrvalue, function($var) use ($searchword) { return preg_match("/\b$searchword\b/i", $var); });
+								//print $matches;
+								$arr['FUNCTION'] = $innerarrFun;
+								$arrrr = array($arr);
+						};
+						//print_r($arr);
+						if (!empty ($arr)){
+						$hasObservation .= '<ef:hasObservation xlink:href="'. $arr[0]['URL'] .'"/>';
+						}
 						?>
+						<?php if (!empty($datasetLegalAct)) : ?>
 						<ef:legalBackground>
 							<base2:LegislationCitation gml:id="<?php print "Dataset_" . $datasetUUID . "_". uniqid()?>">
 								<base2:name>
@@ -102,11 +133,12 @@ $relatedDatasetMetadataArray = json_decode($relatedDatasetMetadata);
 								<base2:level/>
 							</base2:LegislationCitation>
 						</ef:legalBackground>
+						<?php endif; ?>
 						<?php
 					}
-				}
+				//}
 				$k++;
-				
+				}
 				?>
 	
 	<?php endif; ?>
@@ -340,7 +372,11 @@ $relatedDatasetMetadataArray = json_decode($relatedDatasetMetadata);
 		<?php foreach ($paramSiteArray as $item): ?>
 			<ef:hasObservation xlink:href="<?php print $deimsURL . "/sos?REQUEST=GetObservation&SERVICE=SOS&VERSION=1.0.0&OFFERING=".$deimsURL."/sos/observedProperty/offeringID&OBSERVEDPROPERTY=".$deimsURL."/sos/observedProperty/".$item."&RESPONSEFORMAT=text/xml;subtype=&quot;om/1.0.0;" ?>"/>
 		<?php endforeach; ?>
+		
+		
 	<?php endif; ?>
+	
+	<?php print $hasObservation;?>
 	
 	
 	
