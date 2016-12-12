@@ -51,7 +51,7 @@ $hasObservation = '';
 	-->
 	<?php if (!empty($geobonBiome)):?>
 		<?php foreach ($geobonBiome as $item): ?>
-			<ef:mediaMonitored xlink:href="<?php print $deimsURL . "/codeList/GeoboneBiome/" . $item[value]; ?>"/>
+			<ef:mediaMonitored xlink:href="<?php print $deimsURL . "/codeList/GeobonBiome/" . $item[value]; ?>"/>
 		<?php endforeach; ?>
 	<?php endif; ?>
 	
