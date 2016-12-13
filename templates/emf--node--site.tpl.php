@@ -394,7 +394,7 @@ $hasObservation = '';
 	<ef:mobile>false</ef:mobile>
 	
 	<ef:operationalActivityPeriod xsi:nil="false">
-		<ef:OperationalActivityPeriod gml:id="operationalActivityPeriond_<?php print render($content['field_uuid']); ?>">
+		<ef:OperationalActivityPeriod gml:id="operationalActivityPeriod_<?php print render($content['field_uuid']); ?>">
 			<ef:activityTime>
 				<gml:TimePeriod gml:id="timePeriod_<?php print render($content['field_uuid']); ?>">
 				
