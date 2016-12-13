@@ -301,7 +301,7 @@ function emf_debug($message, array $variables = array()) {
 }
 
 
-function extract_unit($string, $start, $end)
+function emf_extract_unit($string, $start, $end)
 {
 	$pos = stripos($string, $start);
 	$str = substr($string, $pos);
