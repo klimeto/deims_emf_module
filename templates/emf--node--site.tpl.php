@@ -1,6 +1,8 @@
 <?php
 // BASE VARIABLES AND REQUIRES
-require 'profiles/deims/modules/custom/emf/lib/ext/ShapeFile.inc.php';
+$module_path = drupal_get_path('module', 'emf');
+$shapefile_loc = $module_path . '/lib/ext/ShapeFile.inc.php';
+include $shapefile_loc;
 $node = menu_get_object();
 $uuid = render($content['field_uuid']);
 $geobonBiome = field_get_items('node', $node, 'field_site_geobon_biome');
@@ -203,7 +205,7 @@ $hasObservation = '';
 			<?php if (!empty($content['field_upload_shapefile'])):?>
 			<?php 	$shpZipURL = render($content['field_upload_shapefile']);
 					//echo $shpZipURL;
-					$shpEmfZipFile = 'profiles/deims/modules/custom/emf/data/shp/'. basename($shpZipURL);
+					$shpEmfZipFile = $module_path.'/data/shp/'. basename($shpZipURL);
 					$shpEmfFile = basename($shpEmfZipFile,'.zip');
 					//echo $shpEmfFile;
 					$copy = copy($shpZipURL, $shpEmfZipFile); 
@@ -220,7 +222,7 @@ $hasObservation = '';
 					
 					
 					$options = array('noparts' => false); 
-					$shp = new ShapeFile('profiles/deims/modules/custom/emf/data/shp/'. $shpEmfFile . ".shp", $options);
+					$shp = new ShapeFile($module_path.'/data/shp/'. $shpEmfFile . ".shp", $options);
 					$i = 0;
 					$shpPosList = '';
 					while ($record = $shp->getNext()) { 
