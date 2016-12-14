@@ -267,7 +267,7 @@ $hasObservation = '';
 	<?php if (!empty($content['field_ilter_network_url'])):?>
 		<?php foreach($siteWebAddress as $item): ?>
 			<ef:onlineResource><?php print $item['url']; ?></ef:onlineResource>
-		<? endforeach; ?>
+		<?php endforeach; ?>
 	<?php endif; ?>
 
 	<?php if (!empty($content['field_purpose'])):?>
