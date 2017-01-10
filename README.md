@@ -13,9 +13,9 @@ The code provides an XML encoding for the DEIMS site (meta)data linked with info
 - EMF XMLs will be accessed as node/%nid/emf
 
 ## Examples
-[Zöbelboden LTER IM master site (ICP_IM_AT01)](http://bolegweb.geof.unizg.hr/deims/node/8611/emf)
+[Zöbelboden LTER IM master site (ICP_IM_AT01)](https://data.lter-europe.net/deims/node/8611/emf)
 
-[Lago Maggiore](http://bolegweb.geof.unizg.hr/deims/node/8164/emf)
+[Lago Maggiore](https://data.lter-europe.net/deims/node/8164/emf)
 
 ## Acknowledgements
 The module has been developed by [MK18 s.r.o.](http://mk18sro.xyz/) with the support of the [Ecopotential project](http://www.ecopotential-project.eu/) funded by the European Union.
