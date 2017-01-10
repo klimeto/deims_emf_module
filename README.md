@@ -1,4 +1,4 @@
-# Dynamic Ecological Information System (DEIMS) Environmental Monitoring Facility (EMF) information XML encoding modul
+# Dynamic Ecological Information System (DEIMS) Environmental Monitoring Facility (EMF) information XML encoding module
 The code provides an XML encoding for the DEIMS site (meta)data linked with information about persons, networks, datasets, and data products, based on [INSPIRE data model for Environmental Monitoring Facilities](http://inspire.ec.europa.eu/Themes/120/2892).
 
 ## How to deploy and configure it
@@ -6,7 +6,7 @@ The code provides an XML encoding for the DEIMS site (meta)data linked with info
 
 - Import the views from views folder in order to provide data from datasets and data products
 
-- Enable the view mode "emf" for content types: reseach site, person, organization in section "Custom display settings" on e.g. admin/structure/types/manage/person/display for person content type.
+- Enable the view mode "emf" for content types: research site, person, organization in section "Custom display settings" on e.g. admin/structure/types/manage/person/display for person content type.
 
 - Place the relevant fields in the Active region and and give them the right formatter (emf or other)
 
