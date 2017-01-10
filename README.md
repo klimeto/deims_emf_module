@@ -1,4 +1,4 @@
-# Dynamic Ecological Information System (DEIMS) Environmental Monitoring Facility information modul
+# Dynamic Ecological Information System (DEIMS) Environmental Monitoring Facility (EMF) information XML encoding modul
 The code provides an XML encoding for the DEIMS site (meta)data linked with information about persons, networks, datasets, and data products, based on [INSPIRE data model for Environmental Monitoring Facilities](http://inspire.ec.europa.eu/Themes/120/2892).
 
 ## How to deploy and configure it
