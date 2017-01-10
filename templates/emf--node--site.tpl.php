@@ -2,13 +2,16 @@
 // BASE VARIABLES AND REQUIRES
 $module_path = drupal_get_path('module', 'emf');
 $shapefile_loc = $module_path . '/lib/ext/ShapeFile.inc.php';
-include $shapefile_loc;
+//include $shapefile_loc;
 $node = menu_get_object();
 $uuid = render($content['field_uuid']);
 $geobonBiome = field_get_items('node', $node, 'field_site_geobon_biome');
 $siteManager = field_get_items('node', $node, 'field_person_contact');
 $siteOwner = field_get_items('node', $node, 'field_contact_site_owner');
 $siteFunding = field_get_items('node', $node, 'field_contact_funding_agency');
+$nodesFunding = node_load_multiple($siteFunding);
+//$nodesFundingOrg = node_load_multiple($siteFunding, array('type' => 'organization'));
+$siteFundingNodeType =  $siteFundingNode->type;
 $siteMetadata = field_get_items('node', $node, 'field_person_metadata_provider');
 $parentSiteMetadata = field_get_items('node', $node, 'field_parent_site_name');
 $subSiteMetadata = field_get_items('node', $node, 'field_subsite_name');
@@ -16,26 +19,19 @@ $siteWebAddress = field_get_items('node', $node, 'field_ilter_network_url');
 $deimsURL = $GLOBALS['base_url'];
 $ilterNetworkMetadata = field_get_items('node', $node, 'field_ilter_national_network_nam');
 $otherNetworkMetadata = field_get_items('node', $node, 'field_networks_term_ref');
-//$relatedDataset = field_get_items('node', $node, 'field_collected_datasets_ref');
 //CONNECTING VIEW TO USE FIELDS FROM RELATED DATASETS
 $relatedDatasetMetadata = strip_tags(views_embed_view('datasets_per_site','ds_md',$node->nid));
 $relatedDatasetMetadataArray = json_decode($relatedDatasetMetadata);
-//$datasetTitle = $relatedDatasetMetadataArray[0]->node->title;
-//$datasetLegalAct = $relatedDatasetMetadataArray[0]->node->field_dataset_legal;
-//$datasetUUID = $relatedDatasetMetadataArray[0]->node->field_uuid;
+//CONNECTING VIEW TO USE FIELDS FROM RELATED DATA PRODUCTS
+$relatedDataProductMetadata = strip_tags(views_embed_view('data_products_per_site','dp_md',$node->nid));
+$relatedDataProductMetadataArray = json_decode($relatedDataProductMetadata);
 $hasObservation = '';
-
-
 /** COMMENTED 
 <gml:LinearRing><gml:posList><?php $posList1 = explode ("POLYGON ((", render($content['field_geo_bounding_box'])); $posList2 = explode ("))", $posList1[1]); print $posList2[0]; ?></gml:posList></gml:LinearRing>
 **/
-
+print '<?xml version="1.0" encoding="UTF-8"?>';
 ?>
-
-
-
 <ef:EnvironmentalMonitoringFacility <?php print $namespaces; ?> gml:id="<?php print "Facility_" . $uuid; ?>">
-	
 	<?php //print_r($relatedDatasetMetadata); ?>
 	<ef:inspireId>
         <base:Identifier>
@@ -44,16 +40,12 @@ $hasObservation = '';
         </base:Identifier>
     </ef:inspireId>
 	
-	<ef:name><?php print render($content['field_site_sitelong']); ?></ef:name>
+	<ef:name><?php print utf8_decode(render($content['field_site_sitelong'])); ?></ef:name>
 	
-	<ef:additionalDescription><?php print render($content['field_site_description']); ?></ef:additionalDescription>
-
-	<!-- 	CURRENT VALUES IN THE DEIMS LIST ARE: COASTAL, FRESH WATER LAKES, FRESH WATER RIVERS, MARINE, COASTAL
-			INSPIRE CODE LIST VALUES ARE: AIR, BIOTA, LANDSCAPE, SEDIMENT, SOIL/GROUND, WASTE, WATER
-	-->
+	<ef:additionalDescription><?php print utf8_decode(render($content['field_site_description'])); ?></ef:additionalDescription>
 	<?php if (!empty($geobonBiome)):?>
 		<?php foreach ($geobonBiome as $item): ?>
-			<ef:mediaMonitored xlink:href="<?php print $deimsURL . "/codeList/GeobonBiome/" . $item[value]; ?>"/>
+			<?php print '<ef:mediaMonitored xlink:title="' . $item[value] . '"/>' ?>
 		<?php endforeach; ?>
 	<?php endif; ?>
 	
@@ -72,11 +64,11 @@ $hasObservation = '';
 				//echo "NUM_ARRAYS: " . $num_arrays;
 				for($k = 0; $k < $num_datasets; $k++) {
 					foreach($relatedDatasetMetadataArray AS $value) {
-						$datasetTitle = $value->node->title;
+						$datasetTitle = utf8_decode($value->node->title);
 						$datasetLegalAct = $value->node->field_dataset_legal;
 						$datasetUUID = $value->node->field_uuid;
+						$datasetNid = $value->node->nid;
 						$datasetURL = $value->node->field_online_locator;
-						//print $datasetURL;
 						$datasetURLArray = explode(';', $datasetURL);
 						//
 						$searchword = 'service=SOS';
@@ -105,7 +97,10 @@ $hasObservation = '';
 						};
 						//print_r($arr);
 						if (!empty ($arr)){
-						$hasObservation .= '<ef:hasObservation xlink:href="'. $arr[0]['URL'] .'"/>';
+							$hasObservation .= '<ef:hasObservation xlink:href="'. $arr[0]['URL'] .'"/>';
+						}
+						else if (empty($arr)){
+							$hasObservation .= '<ef:hasObservation xlink:title="'. $datasetTitle. '" xlink:href="'. $deimsURL . '/node/' . $datasetNid . '/iso19139"/>';
 						}
 						?>
 						<?php if (!empty($datasetLegalAct)) : ?>
@@ -131,8 +126,8 @@ $hasObservation = '';
 										</gmd:dateType>
 									</gmd:CI_Date>
 								</base2:date>
-								<base2:link/>
-								<base2:level/>
+								<base2:link nilReason="missing"/>
+								<base2:level nilReason="missing"/>
 							</base2:LegislationCitation>
 						</ef:legalBackground>
 						<?php endif; ?>
@@ -146,19 +141,19 @@ $hasObservation = '';
 	<?php endif; ?>
 	
 	<?php if (!empty($content['field_person_contact'])):?>
-		<?php print render($content['field_person_contact']); ?>
+		<?php print utf8_decode(render($content['field_person_contact'])); ?>
 	<?php endif; ?>
 	
 	<?php if (!empty($content['field_contact_site_owner'])):?>
-			<?php print render($content['field_contact_site_owner']); ?>
+			<?php print utf8_decode(render($content['field_contact_site_owner'])); ?>
 	<?php endif; ?>
 	
 	<?php if (!empty($content['field_contact_funding_agency'])):?>
-		<?php print render($content['field_contact_funding_agency']); ?>
+		<?php print utf8_decode(render($content['field_contact_funding_agency'])); ?>
 	<?php endif; ?>
 	
 	<?php if (!empty($content['field_person_metadata_provider'])):?>
-		<?php print render($content['field_person_metadata_provider']); ?>
+		<?php print utf8_decode(render($content['field_person_metadata_provider'])); ?>
 	<?php endif; ?>
 	
 	<?php if ((!empty($content['field_geo_bounding_box'])) || (!empty($content['field_coordinates'])) || (!empty($content['field_upload_shapefile']))) :?>
@@ -202,65 +197,6 @@ $hasObservation = '';
 					</gml:Point>
 				</gml:geometryMember>
 			<?php endif; ?>
-			<?php if (!empty($content['field_upload_shapefile'])):?>
-			<?php 	$shpZipURL = render($content['field_upload_shapefile']);
-					//echo $shpZipURL;
-					$shpEmfZipFile = $module_path.'/data/shp/'. basename($shpZipURL);
-					$shpEmfFile = basename($shpEmfZipFile,'.zip');
-					//echo $shpEmfFile;
-					$copy = copy($shpZipURL, $shpEmfZipFile); 
-					$path = pathinfo( realpath( $shpEmfZipFile ), PATHINFO_DIRNAME );
-					$zip = new ZipArchive;
-					$res = $zip->open($shpEmfZipFile);
-					if ($res === TRUE) {
-						$zip->extractTo( $path );
-						$zip->close();
-					}
-					else {
-						echo "Doh! I couldn't open $shpEmfZipFile";
-					}
-					
-					
-					$options = array('noparts' => false); 
-					$shp = new ShapeFile($module_path.'/data/shp/'. $shpEmfFile . ".shp", $options);
-					$i = 0;
-					$shpPosList = '';
-					while ($record = $shp->getNext()) { 
-						//$dbf_data = $record->getDbfData(); 
-						$shp_data = $record->getShpData(); 
-						//Dump the information 
-						//print_r($dbf_data);
-						$array = $shp_data['parts'][0]['points'];
-						$num_elements = 0;
-						//$shpPosList = '';
-						foreach($array AS $key => $value) {
-							//print 'KEY: '.$key.'<br>';
-							if (count($value) > $num_elements) {
-								$num_elements = count($value);
-								//echo $num_elements;
-							}
-						}
-						for($i = 0; $i < $num_elements-1; $i++) {
-							foreach($array AS $value) {
-								//print ('VALUE: ' . $value[$i][x]);
-								$shpPosList .= $value['y'] .' '.$value['x'].' ';
-								//echo $shpPosList;
-								//return;
-							}
-						}
-						//print_r($array); 
-						$i++; 
-					} 
-					
-					?>
-			<gml:geometryMember>
-				<gml:Polygon gml:id="<?php print render($content['field__site_sitecode']) . '_SHAPE'; ?>" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
-					<gml:exterior>
-							<gml:LinearRing><gml:posList><?php print rtrim($shpPosList,' ') ?></gml:posList></gml:LinearRing>
-					</gml:exterior>
-				</gml:Polygon>
-			</gml:geometryMember>
-			<?php endif; ?>
 		</gml:MultiGeometry>
 	</ef:geometry>
 	<?php endif; ?>
@@ -273,7 +209,6 @@ $hasObservation = '';
 	<?php endif; ?>
 
 	<?php if (!empty($content['field_purpose'])):?>
-		<!--<ef:purpose><?php print render($content['field_purpose']); ?></ef:purpose>-->
 		<ef:purpose xlink:href="http://inspire.ec.europa.eu/codelist/PurposeOfCollectionValue"/>
 	<?php endif; ?>
 	
@@ -285,14 +220,11 @@ $hasObservation = '';
 	<?php foreach ($paramEnvthesArray as $item): ?>
 	<ef:observingCapability>
         <ef:ObservingCapability gml:id="<?php print "ObservingCapability_" . render($content['field__site_sitecode']) . "_" . uniqid(); ?>">
-            <ef:observingTime xsi:nil="true" nilReason="Unpopulated"/>
-            
-			<!-- codeList http://inspire.ec.europa.eu/codeList/ProcessTypeValue/ with values: Process, SensorML -->
-			<ef:processType xsi:nil="true" nilReason="Unpopulated"/>
-			<!-- codeList http://inspire.ec.europa.eu/codeList/ResultNatureValue/ with values: primary, processed, simulated -->
-            <ef:resultNature xsi:nil="true" nilReason="Unpopulated"/>
-            <ef:procedure xlink:href="<?php print $deimsURL ."/node/" . $uuid . "/procedure/sensorML" ?>"/>
-			<ef:featureOfInterest xlink:href="<?php print $deimsURL ."/node/". $uuid ."/foi/foi_id" ?>"/>
+            <ef:observingTime xsi:nil="true" nilReason="missing"/>
+			<ef:processType xsi:nil="true" nilReason="missing"/>
+            <ef:resultNature xsi:nil="true" nilReason="missing"/>
+            <ef:procedure nilReason="missing"/>
+			<ef:featureOfInterest nilReason="missing"/>
             <ef:observedProperty xlink:href="<?php 
 												$sparqlQuery = ("http://vocabs.ceh.ac.uk/evn/tbl/sparql?default-graph-uri=urn:x-evn-pub:envthes&format=text/json&query=SELECT%20%3Fresult%0AWHERE%20%7B%0A%09GRAPH%20%3Curn%3Ax-evn-pub%3Aenvthes%3E%20%7B%0A%09%09%3Fresult%20a%20%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23Concept%3E%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20EXISTS%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%3Fresult%20%3FanyProperty%20%3FanyValue%20.%0A%20%20%20%20%20%20%20%20%20%20%20FILTER%20(isLiteral(%3FanyValue)%20%26%26%20regex(LCASE(str(%3FanyValue))%2C%20%22(%3F%3D.*". $item ."*)%22))%20.%0A%20%20%20%20%20%20%20%7D%20.%0A%09%7D%0ABIND%20(%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23prefLabel%3E(%3Fresult)%20AS%20%3Flabel)%20.%0A%7D%20ORDER%20BY%20(LCASE(%3Flabel))");
 												// Get cURL resource
@@ -315,15 +247,12 @@ $hasObservation = '';
 	<?php foreach ($paramSiteArray as $item): ?>
 	<ef:observingCapability>
         <ef:ObservingCapability gml:id="<?php print "ObservingCapability_" . render($content['field__site_sitecode']) . "_" . uniqid(); ?>">
-            <ef:observingTime xsi:nil="true" nilReason="Unpopulated"/>
-            
-			<!-- codeList http://inspire.ec.europa.eu/codeList/ProcessTypeValue/ with values: Process, SensorML -->
-			<ef:processType xsi:nil="true" nilReason="Unpopulated"/>
-			<!-- codeList http://inspire.ec.europa.eu/codeList/ResultNatureValue/ with values: primary, processed, simulated -->
-            <ef:resultNature xsi:nil="true" nilReason="Unpopulated"/>
-            <ef:procedure xlink:href="<?php print $deimsURL ."/node/" . $uuid . "/procedure/sensorML" ?>"/>
-			<ef:featureOfInterest xlink:href="<?php print $deimsURL ."/node/". $uuid ."/foi/foi_id" ?>"/>
-            <ef:observedProperty xlink:href="<?php print $deimsURL ."/node/". $uuid ."/observedProperty/" . $item;?>"/>
+            <ef:observingTime xsi:nil="true" nilReason="missing"/>
+			<ef:processType xsi:nil="true" nilReason="missing"/>
+            <ef:resultNature xsi:nil="true" nilReason="missing"/>
+            <ef:procedure nilReason="missing"/>
+			<ef:featureOfInterest nilReason="missing"/>
+            <ef:observedProperty xlink:title="<?php print $item; ?>"/>
         </ef:ObservingCapability>
     </ef:observingCapability>
 	<?php endforeach; ?>
@@ -346,7 +275,6 @@ $hasObservation = '';
         </ef:Hierarchy>
     </ef:broader>
 	<?php endif; ?>
-	
 	<?php if (!empty($content['field_subsite_name'])):
 		foreach ($subSiteMetadata as $item):
 		$subSiteNodeId = $item['node']->nid;
@@ -367,22 +295,65 @@ $hasObservation = '';
 		<?php endforeach; ?>
 	<?php endif; ?>
 	
-	
-	<?php 
-		$sosService = render ($content['field_site_dataservi']);
-	if ($sosService === 'Sensor Web Enablement (SWE)'): ?>
-		<?php foreach ($paramSiteArray as $item): ?>
-			<ef:hasObservation xlink:href="<?php print $deimsURL . "/sos?REQUEST=GetObservation&SERVICE=SOS&VERSION=1.0.0&OFFERING=".$deimsURL."/sos/observedProperty/offeringID&OBSERVEDPROPERTY=".$deimsURL."/sos/observedProperty/".$item."&RESPONSEFORMAT=text/xml;subtype=&quot;om/1.0.0;" ?>"/>
-		<?php endforeach; ?>
-		
-		
-	<?php endif; ?>
-	
 	<?php print $hasObservation;?>
 	
-	
-	
-	
+	<?php if (!empty($relatedDataProductMetadata)): ?>
+		<?php
+			$k = 0;
+			$num_data_products = 0;
+			foreach($relatedDataProductMetadataArray AS $key => $value) {
+					//print 'KEY: '.$key.'<br>';
+					if (count($value) > $num_data_products) {
+						$num_data_products = count($value);
+					}
+				}
+				//echo "NUM_ARRAYS: " . $num_arrays;
+				for($k = 0; $k < $num_data_products; $k++) {
+					foreach($relatedDataProductMetadataArray AS $value) {
+						$dataProductNid = $value->node->nid;
+						$dataProductTitle = utf8_decode($value->node->title);
+						$dataProductUUID = $value->node->field_uuid;
+						$dataProductAbstract = utf8_decode($value->node->field_abstract);
+						$dataProductDateRange = $value->node->field_date_range;
+						$dataProductDateRangeArray = explode(' to ', $dataProductDateRange);
+						$dataProductCreator = utf8_decode($value->node->field_person_creator);
+						$dataProductParameters = $value->node->field_parameters_taxonomy;
+						$dataProductType = $value->node->field_data_product_type;
+					?>
+					<ef:involvedIn>
+						<ef:EnvironmentalMonitoringActivity gml:id="<?php print "Data_collection_activity" . $dataProductUUID . "_". uniqid(); ?>">
+						   <gml:description><?php print $dataProductParameters; ?></gml:description>
+							<gml:identifier codeSpace="<?php print $dataProductType; ?>"/>
+						  <gml:name><?php print $dataProductTitle; ?></gml:name>
+						  <ef:activityTime>
+							<gml:TimePeriod gml:id="<?php print "Data_collection_activity_TimePeriod" . $dataProductUUID . "_". uniqid()?>">
+							 <gml:beginPosition><?php print $dataProductDateRangeArray[0]; ?></gml:beginPosition>
+							 <gml:endPosition><?php print $dataProductDateRangeArray[1]; ?></gml:endPosition>
+							</gml:TimePeriod>
+						   </ef:activityTime>
+						   <ef:activityConditions><?php print $dataProductAbstract; ?></ef:activityConditions>
+						   <ef:responsibleParty>
+							<base2:RelatedParty>
+							 <base2:individualName>
+							  <gco:CharacterString><?php print $dataProductCreator; ?></gco:CharacterString>
+							 </base2:individualName>
+							</base2:RelatedParty>
+						   </ef:responsibleParty>
+						   <ef:inspireId>
+							<base:Identifier>
+							 <base:localId><?php print $dataProductUUID; ?></base:localId>
+							 <base:namespace><?php print $deimsURL; ?></base:namespace>
+							</base:Identifier>
+						   </ef:inspireId>
+						   <ef:onlineResource><?php print $deimsURL .'/node/' . $dataProductNid ?></ef:onlineResource>
+						</ef:EnvironmentalMonitoringActivity>
+					</ef:involvedIn>
+				<?php
+					}
+					$k++;
+				}
+		?>
+	<?php endif; ?>
 	<?php if (!empty($content['field_coordinates'])):?>
 	<ef:representativePoint>
         <gml:Point gml:id="<?php print render($content['field__site_sitecode']) . '_CENTROID'; ?>" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">

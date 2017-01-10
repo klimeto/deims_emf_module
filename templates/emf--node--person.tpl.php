@@ -1,23 +1,16 @@
 <?php
-/**
- * This template does not have a surrounding XML element because it is re-used
- * by other elements.
- */
- 
- 
-$street = $content['field_address']['#object']->field_address['und'][0]['thoroughfare'];
-$town = $content['field_address']['#object']->field_address['und'][0]['locality'];
-$district = $content['field_address']['#object']->field_address['und'][0]['administrative_area'];
-$postalCode = $content['field_address']['#object']->field_address['und'][0]['postal_code'];
-$country = $content['field_address']['#object']->field_address['und'][0]['country'];
-
-
+$street = $content['field_address']['#object']->field_address['und'][0]['thoroughfare']; // MANDATORY FIELD WITH LABEL: Address 1
+$town = $content['field_address']['#object']->field_address['und'][0]['locality']; // MANDATORY FIELD WITH LABEL: City
+$district = $content['field_address']['#object']->field_address['und'][0]['administrative_area']; // MANDATORY FIELD WITH LABEL: Province
+$postalCode = $content['field_address']['#object']->field_address['und'][0]['postal_code']; // MANDATORY FIELD WITH LABEL: Postal code
+$country = $content['field_address']['#object']->field_address['und'][0]['country']; // OPTIONAL ???? FIELD WITH LABEL: Country
+$organizationTitle = $content['field_organization']['#object']->field_organization['und'][0]['entity']->title;
 ?>
 <ef:responsibleParty>
         <base2:RelatedParty>
 			<?php print render($content['field_name']); ?>
 			<?php 	if ($content['field_organization']){
-						print render($content['field_organization']);
+						print '<base2:organisationName><gco:CharacterString>'.$organizationTitle.'</gco:CharacterString></base2:organisationName>';
 					}
 					else {
 						print '<base2:organisationName><gco:CharacterString>LTER Europe</gco:CharacterString></base2:organisationName>';
@@ -33,7 +26,7 @@ $country = $content['field_address']['#object']->field_address['und'][0]['countr
 					<?php if (!empty($content['field_address'])):?>
 					<?php //print_r ($content['field_address']['#object']->field_address['und'][0]); ?>
 					<base2:contactInstructions>
-                        <gco:CharacterString><?php print('Full address: '. $street . ' ' . $town . ' ' . $district . ' ' . $postalCode . ' ' . $country . '.'); ?></gco:CharacterString>
+                        <gco:CharacterString><?php print($street . ' ' . $town . ' ' . $district . ' ' . $postalCode . ' ' . $country); ?></gco:CharacterString>
                     </base2:contactInstructions>
 					<?php endif; ?>
 				
@@ -50,9 +43,7 @@ $country = $content['field_address']['#object']->field_address['und'][0]['countr
                 </base2:Contact>
             </base2:contact>
 			<?php if (!empty($content['field_person_role'])):?>
-			<base2:role xlink:role="<?php print render($content['field_person_role']); ?>" xlink:href="https://data.lter-europe.net/deims/codeList/<?php print render($content['field_person_role']); ?>"/>
+			<base2:role xlink:role="<?php print render($content['field_person_role']); ?>" />
 			<?php endif; ?>
         </base2:RelatedParty>
-    </ef:responsibleParty>
-
-
+</ef:responsibleParty>
