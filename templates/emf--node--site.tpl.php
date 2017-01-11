@@ -166,7 +166,7 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 				$array = $obj->coordinates[0];
 				//print_r ($obj->coordinates);
 				$j = 0;
-				//$jsonPosList = '';
+				$jsonPosList = '';
 				//$num_arrays = -1;
 				foreach($array AS $key => $value) {
 					//print 'KEY: '.$key.'<br>';
