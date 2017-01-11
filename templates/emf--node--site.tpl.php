@@ -10,8 +10,6 @@ $siteManager = field_get_items('node', $node, 'field_person_contact');
 $siteOwner = field_get_items('node', $node, 'field_contact_site_owner');
 $siteFunding = field_get_items('node', $node, 'field_contact_funding_agency');
 $nodesFunding = node_load_multiple($siteFunding);
-//$nodesFundingOrg = node_load_multiple($siteFunding, array('type' => 'organization'));
-$siteFundingNodeType =  $siteFundingNode->type;
 $siteMetadata = field_get_items('node', $node, 'field_person_metadata_provider');
 $parentSiteMetadata = field_get_items('node', $node, 'field_parent_site_name');
 $subSiteMetadata = field_get_items('node', $node, 'field_subsite_name');
