@@ -2,6 +2,7 @@
         <base2:RelatedParty>
 			<?php print render($content['field_name']); ?>
 			<?php 	if ($content['field_organization']){
+						$organizationTitle = $content['field_organization']['#object']->field_organization['und'][0]['entity']->title;
 						print '<base2:organisationName><gco:CharacterString>'.$organizationTitle.'</gco:CharacterString></base2:organisationName>';
 					}
 					else {
@@ -22,7 +23,6 @@
 						$district = $content['field_address']['#object']->field_address['und'][0]['administrative_area']; // MANDATORY FIELD WITH LABEL: Province
 						$postalCode = $content['field_address']['#object']->field_address['und'][0]['postal_code']; // MANDATORY FIELD WITH LABEL: Postal code
 						$country = $content['field_address']['#object']->field_address['und'][0]['country']; // OPTIONAL ???? FIELD WITH LABEL: Country
-						$organizationTitle = $content['field_organization']['#object']->field_organization['und'][0]['entity']->title;
 						?>
 					<base2:contactInstructions>
                         <gco:CharacterString><?php print($street . ' ' . $town . ' ' . $district . ' ' . $postalCode . ' ' . $country); ?></gco:CharacterString>
