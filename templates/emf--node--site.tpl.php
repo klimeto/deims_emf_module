@@ -224,19 +224,20 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
             <ef:procedure nilReason="missing"/>
 			<ef:featureOfInterest nilReason="missing"/>
             <ef:observedProperty xlink:href="<?php 
+																							// querying envthes is too slow
 												$sparqlQuery = ("http://vocabs.ceh.ac.uk/evn/tbl/sparql?default-graph-uri=urn:x-evn-pub:envthes&format=text/json&query=SELECT%20%3Fresult%0AWHERE%20%7B%0A%09GRAPH%20%3Curn%3Ax-evn-pub%3Aenvthes%3E%20%7B%0A%09%09%3Fresult%20a%20%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23Concept%3E%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20EXISTS%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%3Fresult%20%3FanyProperty%20%3FanyValue%20.%0A%20%20%20%20%20%20%20%20%20%20%20FILTER%20(isLiteral(%3FanyValue)%20%26%26%20regex(LCASE(str(%3FanyValue))%2C%20%22(%3F%3D.*". $item ."*)%22))%20.%0A%20%20%20%20%20%20%20%7D%20.%0A%09%7D%0ABIND%20(%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23prefLabel%3E(%3Fresult)%20AS%20%3Flabel)%20.%0A%7D%20ORDER%20BY%20(LCASE(%3Flabel))");
 												// Get cURL resource
-												$curl = curl_init();
+												//$curl = curl_init();
 												// Set some options - we are passing in a useragent too here
-												curl_setopt_array($curl, array(
+												/*curl_setopt_array($curl, array(
 													CURLOPT_RETURNTRANSFER => 1,
 													CURLOPT_URL => $sparqlQuery,
 													CURLOPT_USERAGENT => 'Codular Sample cURL Request'
-												));
+												));*/
 												// Send the request & save response to $resp
-												$resp = curl_exec($curl);
+												//$resp = curl_exec($curl);
 												// Close request to clear up some resources
-												curl_close($curl);
+												//curl_close($curl);
 												print $sparqlQuery;
 			?>"/>
         </ef:ObservingCapability>
