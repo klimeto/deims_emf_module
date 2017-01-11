@@ -167,10 +167,10 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 				//print_r ($obj->coordinates);
 				$j = 0;
 				$jsonPosList = '';
-				//$num_arrays = -1;
+				$num_arrays = 0;
 				foreach($array AS $key => $value) {
 					//print 'KEY: '.$key.'<br>';
-					if (count($value) > $num_arrays) {
+					if (count($value) >= $num_arrays) {
 						$num_arrays = count($value);
 					}
 				}
