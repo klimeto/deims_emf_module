@@ -1,7 +1,7 @@
 <?php
 // BASE VARIABLES AND REQUIRES
 $module_path = drupal_get_path('module', 'emf');
-$shapefile_loc = $module_path . '/lib/ext/ShapeFile.inc.php';
+//$shapefile_loc = $module_path . '/lib/ext/ShapeFile.inc.php';
 //include $shapefile_loc;
 $node = menu_get_object();
 $uuid = render($content['field_uuid']);
