@@ -45,7 +45,7 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 	<ef:additionalDescription><?php print utf8_decode(render($content['field_site_description'])); ?></ef:additionalDescription>
 	<?php if (!empty($geobonBiome)):?>
 		<?php foreach ($geobonBiome as $item): ?>
-			<?php print '<ef:mediaMonitored xlink:title="' . $item[value] . '"/>' ?>
+			<?php print '<ef:mediaMonitored xlink:title="' . $item['value'] . '"/>' ?>
 		<?php endforeach; ?>
 	<?php endif; ?>
 	
