@@ -103,7 +103,7 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 							$hasObservation .= '<ef:hasObservation xlink:title="'. $datasetTitle. '" xlink:href="'. $deimsURL . '/node/' . $datasetNid . '/iso19139"/>';
 						}
 						?>
-						<?php if (!empty($datasetLegalAct)) : ?>
+						<?php if (!empty($datasetLegalAct) || $datasetLegalAct != "None") : ?>
 						<ef:legalBackground>
 							<base2:LegislationCitation gml:id="<?php print "Dataset_" . $datasetUUID . "_". uniqid()?>">
 								<base2:name>
