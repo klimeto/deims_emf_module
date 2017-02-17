@@ -271,8 +271,6 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
                     <gml:endPosition indeterminatePosition="now"/>
                 </gml:TimePeriod>
             </ef:linkingTime>
-            <ef:broader/>
-            <ef:narrower/>
         </ef:Hierarchy>
     </ef:broader>
 	<?php endif; ?>
@@ -289,8 +287,6 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 							<gml:endPosition indeterminatePosition="now"/>
 						</gml:TimePeriod>
 					</ef:linkingTime>
-					<ef:broader/>
-					<ef:narrower/>
 				</ef:Hierarchy>
 			</ef:narrower>
 		<?php endforeach; ?>
