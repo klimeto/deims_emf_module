@@ -32,7 +32,6 @@ $hasObservation = '';
 print '<?xml version="1.0" encoding="UTF-8"?>';
 ?>
 <ef:EnvironmentalMonitoringFacility <?php print $namespaces; ?> gml:id="<?php print "Facility_" . $uuid; ?>">
-	<?php //print_r($relatedDatasetMetadata); ?>
 	<ef:inspireId>
         <base:Identifier>
 			<base:localId><?php print render($content['field_uuid']); ?></base:localId>
@@ -40,9 +39,9 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
         </base:Identifier>
     </ef:inspireId>
 	
-	<ef:name><?php print utf8_decode(render($content['field_site_sitelong'])); ?></ef:name>
+	<ef:name><?php print render($content['field_site_sitelong']); ?></ef:name>
 	
-	<ef:additionalDescription><?php print utf8_decode(render($content['field_site_description'])); ?></ef:additionalDescription>
+	<ef:additionalDescription><?php print render($content['field_site_description']); ?></ef:additionalDescription>
 	<?php if (!empty($geobonBiome)):?>
 		<?php foreach ($geobonBiome as $item): ?>
 			<?php print '<ef:mediaMonitored xlink:title="' . $item['value'] . '"/>' ?>
@@ -64,7 +63,7 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 				//echo "NUM_ARRAYS: " . $num_arrays;
 				for($k = 0; $k < $num_datasets; $k++) {
 					foreach($relatedDatasetMetadataArray AS $value) {
-						$datasetTitle = utf8_decode($value->node->title);
+						$datasetTitle = $value->node->title;
 						$datasetLegalAct = $value->node->field_dataset_legal;
 						$datasetUUID = $value->node->field_uuid;
 						$datasetNid = $value->node->nid;
@@ -141,19 +140,19 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 	<?php endif; ?>
 	
 	<?php if (!empty($content['field_person_contact'])):?>
-		<?php print utf8_decode(render($content['field_person_contact'])); ?>
+		<?php print render($content['field_person_contact']); ?>
 	<?php endif; ?>
 	
 	<?php if (!empty($content['field_contact_site_owner'])):?>
-			<?php print utf8_decode(render($content['field_contact_site_owner'])); ?>
+			<?php print render($content['field_contact_site_owner']); ?>
 	<?php endif; ?>
 	
 	<?php if (!empty($content['field_contact_funding_agency'])):?>
-		<?php print utf8_decode(render($content['field_contact_funding_agency'])); ?>
+		<?php print render($content['field_contact_funding_agency']); ?>
 	<?php endif; ?>
 	
 	<?php if (!empty($content['field_person_metadata_provider'])):?>
-		<?php print utf8_decode(render($content['field_person_metadata_provider'])); ?>
+		<?php print render($content['field_person_metadata_provider']); ?>
 	<?php endif; ?>
 	
 	<?php if ((!empty($content['field_geo_bounding_box'])) || (!empty($content['field_coordinates'])) || (!empty($content['field_upload_shapefile']))) :?>
@@ -212,12 +211,15 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 		<ef:purpose xlink:href="http://inspire.ec.europa.eu/codelist/PurposeOfCollectionValue"/>
 	<?php endif; ?>
 	
-	<?php if (!empty($content['field_site_params']) || !empty($content['field_parameters_taxonomy'])):
-	$paramEnvthes =  strip_tags(render($content['field_parameters_taxonomy']));
-	$paramSite = render($content['field_site_params']);
-	$paramSiteArray = explode(' -- ', $paramSite);
-	$paramEnvthesArray = explode(', ', $paramEnvthes);?>
-	<?php foreach ($paramEnvthesArray as $item): ?>
+	<?php 
+	if (!empty($content['field_site_params']) || !empty($content['field_parameters_taxonomy'])):
+		$paramEnvthes =  strip_tags(render($content['field_parameters_taxonomy']));
+		$paramSite = render($content['field_site_params']);
+		$paramSiteArray = explode(' -- ', $paramSite);
+		$paramEnvthesArray = explode(', ', $paramEnvthes);
+		
+	?>
+	<?php foreach ($paramEnvthesArray as $item): ?> 
 	<ef:observingCapability>
         <ef:ObservingCapability gml:id="<?php print "ObservingCapability_" . render($content['field__site_sitecode']) . "_" . uniqid(); ?>">
             <ef:observingTime xsi:nil="true" nilReason="missing"/>
@@ -225,9 +227,10 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
             <ef:resultNature xsi:nil="true" nilReason="missing"/>
             <ef:procedure nilReason="missing"/>
 			<ef:featureOfInterest nilReason="missing"/>
-            <ef:observedProperty xlink:href="<?php 
+            <ef:observedProperty _text="<?php 
 																							// querying envthes is too slow
-												$sparqlQuery = ("http://vocabs.ceh.ac.uk/evn/tbl/sparql?default-graph-uri=urn:x-evn-pub:envthes&format=text/json&query=SELECT%20%3Fresult%0AWHERE%20%7B%0A%09GRAPH%20%3Curn%3Ax-evn-pub%3Aenvthes%3E%20%7B%0A%09%09%3Fresult%20a%20%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23Concept%3E%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20EXISTS%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%3Fresult%20%3FanyProperty%20%3FanyValue%20.%0A%20%20%20%20%20%20%20%20%20%20%20FILTER%20(isLiteral(%3FanyValue)%20%26%26%20regex(LCASE(str(%3FanyValue))%2C%20%22(%3F%3D.*". $item ."*)%22))%20.%0A%20%20%20%20%20%20%20%7D%20.%0A%09%7D%0ABIND%20(%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23prefLabel%3E(%3Fresult)%20AS%20%3Flabel)%20.%0A%7D%20ORDER%20BY%20(LCASE(%3Flabel))");
+												print $item;
+												//$sparqlQuery = ("http://vocabs.ceh.ac.uk/evn/tbl/sparql?default-graph-uri=urn:x-evn-pub:envthes&format=text/json&query=SELECT%20%3Fresult%0AWHERE%20%7B%0A%09GRAPH%20%3Curn%3Ax-evn-pub%3Aenvthes%3E%20%7B%0A%09%09%3Fresult%20a%20%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23Concept%3E%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20EXISTS%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%3Fresult%20%3FanyProperty%20%3FanyValue%20.%0A%20%20%20%20%20%20%20%20%20%20%20FILTER%20(isLiteral(%3FanyValue)%20%26%26%20regex(LCASE(str(%3FanyValue))%2C%20%22(%3F%3D.*". $item ."*)%22))%20.%0A%20%20%20%20%20%20%20%7D%20.%0A%09%7D%0ABIND%20(%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23prefLabel%3E(%3Fresult)%20AS%20%3Flabel)%20.%0A%7D%20ORDER%20BY%20(LCASE(%3Flabel))");
 												// Get cURL resource
 												//$curl = curl_init();
 												// Set some options - we are passing in a useragent too here
@@ -240,7 +243,7 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 												//$resp = curl_exec($curl);
 												// Close request to clear up some resources
 												//curl_close($curl);
-												print $sparqlQuery;
+												//print $sparqlQuery;
 			?>"/>
         </ef:ObservingCapability>
     </ef:observingCapability>
@@ -279,7 +282,7 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 		$subSiteNodeId = $item['node']->nid;
 		$subSiteNodeUUID = $item['node']->uuid;
 		?>
-			 <ef:narrower xlink:href="<?php print($deimsURL . "/node/" . $subSiteNodeId . "/emf"); ?>">
+			<ef:narrower xlink:href="<?php print($deimsURL . "/node/" . $subSiteNodeId . "/emf"); ?>">
 				<ef:Hierarchy gml:id="<?php print "Facility_" . $subSiteNodeUUID; ?>">
 					<ef:linkingTime>
 						<gml:TimePeriod gml:id="timePeriod_<?php print $subSiteNodeUUID; ?>">
@@ -291,6 +294,20 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 			</ef:narrower>
 		<?php endforeach; ?>
 	<?php endif; ?>
+	
+	<?php 
+		// experimental code for sensor implementation, print sensor, need new sensor.tpl.php
+		// should we print the linked sensor information as an xhref?
+	
+	if (!empty($content['field_sensor'])) {
+		
+		// EMF view is rendered
+		// add working template file and just print out 
+		// print utf8_decode(render($content['field_sensor']));
+		
+	}
+
+	?>	
 	
 	<?php print $hasObservation;?>
 	
@@ -308,12 +325,12 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 				for($k = 0; $k < $num_data_products; $k++) {
 					foreach($relatedDataProductMetadataArray AS $value) {
 						$dataProductNid = $value->node->nid;
-						$dataProductTitle = utf8_decode($value->node->title);
+						$dataProductTitle = $value->node->title;
 						$dataProductUUID = $value->node->field_uuid;
-						$dataProductAbstract = utf8_decode($value->node->field_abstract);
+						$dataProductAbstract = $value->node->field_abstract;
 						$dataProductDateRange = $value->node->field_date_range;
 						$dataProductDateRangeArray = explode(' to ', $dataProductDateRange);
-						$dataProductCreator = utf8_decode($value->node->field_person_creator);
+						$dataProductCreator = $value->node->field_person_creator;
 						$dataProductParameters = $value->node->field_parameters_taxonomy;
 						$dataProductType = $value->node->field_data_product_type;
 					?>
@@ -351,6 +368,7 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 				}
 		?>
 	<?php endif; ?>
+	
 	<?php if (!empty($content['field_coordinates'])):?>
 	<ef:representativePoint>
         <gml:Point gml:id="<?php print render($content['field__site_sitecode']) . '_CENTROID'; ?>" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
@@ -378,11 +396,13 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 			</ef:activityTime>
 		</ef:OperationalActivityPeriod>
     </ef:operationalActivityPeriod>
-	
+		
 	<?php 	$networkTitle = $ilterNetworkMetadata[0]['entity']->title;
 			$networkNid = $ilterNetworkMetadata[0]['entity']->nid;
 			$networkUuid = $ilterNetworkMetadata[0]['entity']->uuid;
 			$networkCreated = $ilterNetworkMetadata[0]['entity']->created; 
+			
+	if (isset($networkTitle)):
 	?>
 	
 	<ef:belongsTo xlink:href="<?php print $deimsURL . "/node/" . $networkNid ?>">
@@ -398,6 +418,9 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
             <ef:contains/>
         </ef:NetworkFacility>
     </ef:belongsTo>
+	
+	<?php endif; ?>
+	
 	
 	<?php if (!empty($content['field_networks_term_ref'])):?>
 		<?php foreach ($otherNetworkMetadata as $item):?>
