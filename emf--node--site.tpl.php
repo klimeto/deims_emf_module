@@ -348,7 +348,7 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 						  <ef:activityTime>
 							<gml:TimePeriod gml:id="<?php print "Data_collection_activity_TimePeriod" . $dataProductUUID . "_". uniqid()?>">
 							 <gml:beginPosition><?php print $dataProductDateRangeArray[0]; ?></gml:beginPosition>
-							 <gml:endPosition><?php print $dataProductDateRangeArray[1]; ?></gml:endPosition>
+							 <gml:endPosition><?php echo (array_key_exists(2,$dataProductDateRangeArray)) ? $dataProductDateRangeArray[2] : ""; ?></gml:endPosition>
 							</gml:TimePeriod>
 						   </ef:activityTime>
 						   <ef:activityConditions><?php print $dataProductAbstract; ?></ef:activityConditions>
