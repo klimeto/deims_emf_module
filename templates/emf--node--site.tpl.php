@@ -17,7 +17,12 @@ $parentSiteMetadata = field_get_items('node', $node, 'field_parent_site_name');
 $subSiteMetadata = field_get_items('node', $node, 'field_subsite_name');
 $siteWebAddress = field_get_items('node', $node, 'field_ilter_network_url');
 $deimsURL = $GLOBALS['base_url'];
-$ilterNetworkMetadata = field_get_items('node', $node, 'field_ilter_national_network_nam');
+
+// NON-LTER site case
+if (field_get_items('node', $node, 'field_ilter_national_network_nam') != FALSE) {
+	$ilterNetworkMetadata = field_get_items('node', $node, 'field_ilter_national_network_nam');
+}
+
 $otherNetworkMetadata = field_get_items('node', $node, 'field_networks_term_ref');
 //CONNECTING VIEW TO USE FIELDS FROM RELATED DATASETS
 $relatedDatasetMetadata = strip_tags(views_embed_view('datasets_per_site','ds_md',$node->nid));
@@ -116,12 +121,13 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 								<base2:date>
 									<gmd:CI_Date>
 										<gmd:date>
-											<gco:Date><?php print $legalActArray[1];?></gco:Date>
+											<gco:Date><?php	echo (array_key_exists(1,$legalActArray)) ? $legalActArray[1] : "2000-01-01"; ?></gco:Date>
 										</gmd:date>
 										<gmd:dateType>
 											<gmd:CI_DateTypeCode codeList="http://www.isotc211.org/2005/resources/Codelist/gmxCodelists.xml"
-																codeListValue="<?php print $legalActArray[2];?>"
-																codeSpace="ISOTC211/19115"><?php print $legalActArray[2];?></gmd:CI_DateTypeCode>
+																codeListValue="<?php echo (array_key_exists(2,$legalActArray)) ? $legalActArray[2] : "publication"; ?>"
+																codeSpace="ISOTC211/19115"><?php echo (array_key_exists(2,$legalActArray)) ? $legalActArray[2] : "publication"; ?>
+											</gmd:CI_DateTypeCode>
 										</gmd:dateType>
 									</gmd:CI_Date>
 								</base2:date>
@@ -228,7 +234,7 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
             <ef:procedure nilReason="missing"/>
 			<ef:featureOfInterest nilReason="missing"/>
             <ef:observedProperty _text="<?php 
-																							// querying envthes is too slow
+												// querying envthes is way too slow. don't do that
 												print $item;
 												//$sparqlQuery = ("http://vocabs.ceh.ac.uk/evn/tbl/sparql?default-graph-uri=urn:x-evn-pub:envthes&format=text/json&query=SELECT%20%3Fresult%0AWHERE%20%7B%0A%09GRAPH%20%3Curn%3Ax-evn-pub%3Aenvthes%3E%20%7B%0A%09%09%3Fresult%20a%20%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23Concept%3E%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20FILTER%20EXISTS%20%7B%0A%20%20%20%20%20%20%20%20%20%20%20%3Fresult%20%3FanyProperty%20%3FanyValue%20.%0A%20%20%20%20%20%20%20%20%20%20%20FILTER%20(isLiteral(%3FanyValue)%20%26%26%20regex(LCASE(str(%3FanyValue))%2C%20%22(%3F%3D.*". $item ."*)%22))%20.%0A%20%20%20%20%20%20%20%7D%20.%0A%09%7D%0ABIND%20(%3Chttp%3A%2F%2Fwww.w3.org%2F2004%2F02%2Fskos%2Fcore%23prefLabel%3E(%3Fresult)%20AS%20%3Flabel)%20.%0A%7D%20ORDER%20BY%20(LCASE(%3Flabel))");
 												// Get cURL resource
@@ -342,7 +348,7 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 						  <ef:activityTime>
 							<gml:TimePeriod gml:id="<?php print "Data_collection_activity_TimePeriod" . $dataProductUUID . "_". uniqid()?>">
 							 <gml:beginPosition><?php print $dataProductDateRangeArray[0]; ?></gml:beginPosition>
-							 <gml:endPosition><?php print $dataProductDateRangeArray[1]; ?></gml:endPosition>
+							 <gml:endPosition><?php echo (array_key_exists(2,$dataProductDateRangeArray)) ? $dataProductDateRangeArray[2] : ""; ?></gml:endPosition>
 							</gml:TimePeriod>
 						   </ef:activityTime>
 						   <ef:activityConditions><?php print $dataProductAbstract; ?></ef:activityConditions>
@@ -385,7 +391,6 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 		<ef:OperationalActivityPeriod gml:id="operationalActivityPeriod_<?php print render($content['field_uuid']); ?>">
 			<ef:activityTime>
 				<gml:TimePeriod gml:id="timePeriod_<?php print render($content['field_uuid']); ?>">
-				
 					<gml:beginPosition><?php print render($content['field_year']) . "-01-01";?></gml:beginPosition>
 					<?php if (!empty($content['field_year_closed'])):?>
 					<gml:endPosition><?php print render($content['field_year_closed']) . "-01-01";?></gml:endPosition>
@@ -397,12 +402,15 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 		</ef:OperationalActivityPeriod>
     </ef:operationalActivityPeriod>
 		
-	<?php 	$networkTitle = $ilterNetworkMetadata[0]['entity']->title;
+	<?php 	
+	
+	if(isset($ilterNetworkMetadata)):
+
+			$networkTitle = $ilterNetworkMetadata[0]['entity']->title;
 			$networkNid = $ilterNetworkMetadata[0]['entity']->nid;
 			$networkUuid = $ilterNetworkMetadata[0]['entity']->uuid;
-			$networkCreated = $ilterNetworkMetadata[0]['entity']->created; 
-			
-	if (isset($networkTitle)):
+			$networkCreated = $ilterNetworkMetadata[0]['entity']->created; 	
+	
 	?>
 	
 	<ef:belongsTo xlink:href="<?php print $deimsURL . "/node/" . $networkNid ?>">
@@ -414,31 +422,24 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
                     <gml:endPosition indeterminatePosition="now"/>
                 </gml:TimePeriod>
             </ef:linkingTime>
-            <ef:belongsTo/>
-            <ef:contains/>
         </ef:NetworkFacility>
     </ef:belongsTo>
 	
 	<?php endif; ?>
 	
-	
 	<?php if (!empty($content['field_networks_term_ref'])):?>
 		<?php foreach ($otherNetworkMetadata as $item):?>
-		<?php //print_r($item['taxonomy_term']); ?>
 			<ef:belongsTo>
 				<ef:NetworkFacility gml:id="<?php print ("Network_" . $item['taxonomy_term']->uuid) ?>">
 					<gml:name><?php print($item['taxonomy_term']->name); ?></gml:name>
 					<ef:linkingTime>
 						<gml:TimePeriod gml:id="timePeriod_<?php print print ($item['taxonomy_term']->uuid) ?>">
-							<gml:beginPosition><?php print date('Y-m-d',$networkCreated) ?></gml:beginPosition>
+							<gml:beginPosition><?php echo (isset($networkCreated)) ? date('Y-m-d',$networkCreated) : "YYYY-MM-DD"; ?></gml:beginPosition>
 							<gml:endPosition indeterminatePosition="now"/>
 						</gml:TimePeriod>
 					</ef:linkingTime>
-					<ef:belongsTo/>
-					<ef:contains/>
 				</ef:NetworkFacility>
 			</ef:belongsTo>
-			
 		<?php endforeach; ?>
 	<?php endif; ?>
 
