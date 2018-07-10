@@ -163,7 +163,7 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 	
 	<?php if ((!empty($content['field_geo_bounding_box'])) || (!empty($content['field_coordinates'])) || (!empty($content['field_upload_shapefile']))) :?>
 	<ef:geometry>
-        <gml:MultiGeometry gml:id="<?php print render($content['field__site_sitecode']) ?>">
+        <gml:MultiGeometry gml:id="<?php print render($content['field_uuid']) ?>">
 			<?php 
 			if (!empty($content['field_geo_bounding_box'])): 
 				$geoJson = render($content['field_geo_bounding_box']);
@@ -188,7 +188,7 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 				$j++;
 				?>
 				<gml:geometryMember>
-					<gml:Polygon gml:id="<?php print render($content['field__site_sitecode']) . '_BOUNDS'; ?>" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+					<gml:Polygon gml:id="<?php print render($content['field_uuid']) . '_BOUNDS'; ?>" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
 						<gml:exterior>
 								<gml:LinearRing><gml:posList><?php print rtrim($jsonPosList,' ') ?></gml:posList></gml:LinearRing>
 						</gml:exterior>
@@ -197,7 +197,7 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 				<?php endif; ?>
 				<?php if (!empty($content['field_coordinates'])):?>
 				<gml:geometryMember>
-					<gml:Point gml:id="<?php print render($content['field__site_sitecode']) . '_POINT'; ?>" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+					<gml:Point gml:id="<?php print render($content['field_uuid']) . '_POINT'; ?>" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
 						<?php print render($content['field_coordinates']); ?>
 					</gml:Point>
 				</gml:geometryMember>
@@ -227,7 +227,7 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 	?>
 	<?php foreach ($paramEnvthesArray as $item): ?> 
 	<ef:observingCapability>
-        <ef:ObservingCapability gml:id="<?php print "ObservingCapability_" . render($content['field__site_sitecode']) . "_" . uniqid(); ?>">
+        <ef:ObservingCapability gml:id="<?php print "ObservingCapability_" . render($content['field_uuid']) . "_" . uniqid(); ?>">
             <ef:observingTime xsi:nil="true" nilReason="missing"/>
 			<ef:processType xsi:nil="true" nilReason="missing"/>
             <ef:resultNature xsi:nil="true" nilReason="missing"/>
@@ -256,7 +256,7 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 	<?php endforeach; ?>
 	<?php foreach ($paramSiteArray as $item): ?>
 	<ef:observingCapability>
-        <ef:ObservingCapability gml:id="<?php print "ObservingCapability_" . render($content['field__site_sitecode']) . "_" . uniqid(); ?>">
+        <ef:ObservingCapability gml:id="<?php print "ObservingCapability_" . render($content['field_uuid']) . "_" . uniqid(); ?>">
             <ef:observingTime xsi:nil="true" nilReason="missing"/>
 			<ef:processType xsi:nil="true" nilReason="missing"/>
             <ef:resultNature xsi:nil="true" nilReason="missing"/>
@@ -377,7 +377,7 @@ print '<?xml version="1.0" encoding="UTF-8"?>';
 	
 	<?php if (!empty($content['field_coordinates'])):?>
 	<ef:representativePoint>
-        <gml:Point gml:id="<?php print render($content['field__site_sitecode']) . '_CENTROID'; ?>" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+        <gml:Point gml:id="<?php print render($content['field_uuid']) . '_CENTROID'; ?>" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
 			<?php print render($content['field_coordinates']); ?>
         </gml:Point>
     </ef:representativePoint>
